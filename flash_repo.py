@@ -3,7 +3,7 @@ import os
 import urllib.request
 import urllib.error
 
-from .models import Card
+from flash_models import Card
 
 
 class CardRepository:

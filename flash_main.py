@@ -1,9 +1,9 @@
 import os
 import pygame
 
-from flashcards.repositories import JsonFileRepository, HttpApiRepository
-from flashcards.service import FlashcardService
-from flashcards.ui_pygame import FlashcardsPygameApp
+from flash_repo import JsonFileRepository, HttpApiRepository
+from flash_service import FlashcardService
+from flash_ui import FlashcardsPygameApp
 
 
 def build_repo():
