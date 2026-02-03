@@ -52,13 +52,20 @@ class GamesController < ApplicationController
     # POST /api/game/answer
     def answer
       result = GameEngineService.answer_question(
-        game_id:     params[:game_id],
+        game_id:     params[:id],
         player_id:   current_user.id,
-        question_id: params[:question_id],
+        question_id: nil,
         answer:      params[:answer]
       )
-      render json: result
-    end
+
+      render turbo_stream: turbo_stream.update(
+        "game_board", 
+        partial: "games/board", 
+        locals: { state: result }
+      )
+    rescue GameEngineError => e
+      render turbo_stream: turbo_stream.update("flash", html: e.message)
+end
 
     # POST /api/game/cast
     def cast
@@ -70,9 +77,9 @@ class GamesController < ApplicationController
 
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "game_board",           # Target the frame ID
-            partial: "games/board", # Render the partial
+          render turbo_stream: turbo_stream.update(
+            "game_board", 
+            partial: "games/board", 
             locals: { state: new_state }
           )
         end
@@ -100,29 +107,40 @@ class GamesController < ApplicationController
 
     private
 
-    def mock_state
-    {
-      "game_id" => "test-123",
-      "opponent_hp" => 40,
-      "opponent_max_hp" => 100,
-      "player_hp" => 20,
-      "player_max_hp" => 50,
-      "player_mana" => 10, # Give lots of mana to test enabled buttons
-      "last_action" => "Mock Data Loaded",
-      "hand" => [
-        { "id" => "1", "name" => "Slash", "cost" => 2, "type" => "attack", "description" => "A quick strike." },
-        { "id" => "2", "name" => "Potion", "cost" => 3, "type" => "heal", "description" => "Drink up!" }
-      ],
-      # Toggle this to test the Flashcard Modal!
-      # "active_question" => nil 
-      "active_question" => { 
-         "id" => "q1", 
-         "text" => "What is 2 + 2?", 
-         "category" => "Math", 
-         "options" => ["3", "4", "5", "6"] 
-       }
-    }
-    end
+    # app/controllers/games_controller.rb
+
+private
+
+def mock_state
+  {
+    "game_id": "ef8fd681-7491-4ece-a672-becdde182cf3",
+    "phase": "questions",
+    "turn": 1,
+    "player_hp": 60,
+    "player_max_hp": 60,
+    "player_mana": 0,
+    "boss_hp": 90,
+    "boss_max_hp": 90,
+    "boss_resists": "water",
+    "hand": [
+        "Ice Attack (12)",
+        "Water Attack (12)",
+        "Block Fire",
+        "Block Ice",
+        "Fire Attack (12)"
+    ],
+    "questions_left": 2,
+    "current_question": "What does CPU stand for?",
+    "game_over": false,
+    "winner": null,
+    "log": [
+        "Turn 1 begins. Boss resists water.",
+        "Drew up to 5 cards.",
+        "Wrong. +0 mana."
+    ],
+    "answer_correct": false
+}
+end
 
     def handle_engine_error(e)
       render json: { error: e.message }, status: :service_unavailable

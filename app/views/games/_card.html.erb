@@ -1,33 +1,37 @@
 <%# app/views/games/_card.html.erb %>
 <% 
-  # Determine card style based on type (assumes Python sends 'type': 'attack' or 'heal')
-  card_class = card['type'] == 'heal' ? 'card-heal' : 'card-attack'
-  
-  # Check if player has enough mana
-  can_afford = current_mana >= card['cost']
+   # Guess the style based on the name
+   card_class = if card['name'].downcase.include?("attack")
+                  "card-attack"
+                elsif card['name'].downcase.include?("block")
+                  "card-defend"
+                else
+                  "card-neutral"
+                end
+
+   can_afford = current_mana >= card['cost']
 %>
 
 <div class="game-card <%= card_class %> <%= 'disabled' unless can_afford %>">
   <div class="card-header">
     <span class="card-cost"><%= card['cost'] %> 💎</span>
-    <span class="card-name"><%= card['name'] %></span>
   </div>
 
   <div class="card-image">
-    <%= card['type'] == 'heal' ? '❤️' : '⚔️' %>
+    <%= card_class == 'card-attack' ? '⚔️' : '🛡️' %>
   </div>
 
   <div class="card-body">
-    <p><%= card['description'] %></p>
+    <h4><%= card['name'] %></h4>
   </div>
 
   <div class="card-actions">
     <% if can_afford %>
       <%= button_to "Cast", 
-            cast_game_path(game_id: game_id), 
+            cast_game_path(id: game_id), 
             params: { card_id: card['id'] }, 
             class: "btn-cast",
-            form: { data: { turbo_submits_with: "Casting..." } } 
+            form: { data: { turbo_submits_with: "..." } } 
       %>
     <% else %>
       <button class="btn-disabled" disabled>Need Mana</button>

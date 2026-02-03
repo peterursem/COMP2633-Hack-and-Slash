@@ -2,19 +2,17 @@
   <div class="flashcard-container animate-pop-in">
     
     <div class="flashcard-header">
-      <span class="badge-category"><%= question['category'] || "Challenge" %></span>
+      <span class="badge-category">Mana Challenge</span>
       <span class="timer-icon">⏱️</span>
     </div>
 
     <div class="flashcard-body">
-      <h2 class="question-text"><%= question['text'] %></h2>
+      <h2 class="question-text"><%= question_text %></h2>
     </div>
 
     <div class="flashcard-form-container">
       <%= form_with url: answer_game_path(id: game_id), method: :post do |f| %>
         
-        <%= hidden_field_tag :question_id, question['id'] %>
-
         <div class="input-group">
           <%= text_field_tag :answer, nil, 
                 placeholder: "Type your answer...", 
@@ -23,9 +21,9 @@
                 autocomplete: "off" 
           %>
           
-          <%= f.submit "Submit!", 
-                class: "btn-submit", 
-                data: { turbo_submits_with: "Casting..." } 
+          <%= f.submit "Submit Answer", 
+                class: "btn-submit",
+                data: { turbo_submits_with: "Checking..." } 
           %>
         </div>
 
@@ -33,7 +31,7 @@
     </div>
 
     <div class="flashcard-footer">
-      <p>Type the answer correctly to gain mana!</p>
+      <p>Answer correctly to gain Mana!</p>
     </div>
   </div>
 </div>
