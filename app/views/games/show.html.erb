@@ -1,0 +1,13 @@
+<div class="game-container">
+  <h1>Battle Arena</h1>
+
+  <%= turbo_frame_tag "game_board", data: { controller: (params[:no_poll] ? "" : "poller") } do %>
+    
+    <% if @game_state %>
+      <%= render "games/board", state: @game_state %>
+    <% else %>
+      <div class="error">No Game State Found</div>
+    <% end %>
+
+  <% end %>
+</div>

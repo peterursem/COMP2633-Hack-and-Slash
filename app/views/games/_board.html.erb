@@ -1,0 +1,44 @@
+<%# app/views/games/_board.html.erb %>
+<div class="battlefield">
+  
+  <div class="opponent-zone">
+    <div class="avatar">👾</div>
+    <div class="stats">
+      <h3>Enemy Boss</h3>
+      <%= render "games/health_bar", current: state['opponent_hp'], max: state['opponent_max_hp'], color: 'red' %>
+    </div>
+  </div>
+
+  <div class="arena-zone">
+    <% if state['last_action'] %>
+      <div class="action-log fade-out">
+        <%= state['last_action'] %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="player-zone">
+    <div class="player-stats">
+      <div class="stat-group">
+        <span>HP</span>
+        <%= render "games/health_bar", current: state['player_hp'], max: state['player_max_hp'], color: 'green' %>
+      </div>
+      <div class="stat-group">
+        <span>Mana (<%= state['player_mana'] %>)</span>
+        <div class="mana-bar-container">
+          <div class="mana-fill" style="width: <%= (state['player_mana'].to_f / 10) * 100 %>%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hand-container">
+      <% state['hand'].each do |card| %>
+        <%= render "games/card", card: card, current_mana: state['player_mana'], game_id: state['game_id'] %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if state['active_question'].present? %>
+    <%= render "games/flashcard_modal", question: state['active_question'], game_id: state['game_id'] %>
+  <% end %>
+</div>

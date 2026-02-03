@@ -1,0 +1,31 @@
+<%# app/views/games/_flashcard_modal.html.erb %>
+<div class="modal-overlay">
+  <div class="flashcard-container animate-pop-in">
+    
+    <div class="flashcard-header">
+      <span class="badge-category"><%= question['category'] || "Challenge" %></span>
+      <span class="timer-icon">⏱️</span>
+    </div>
+
+    <div class="flashcard-body">
+      <h2 class="question-text"><%= question['text'] %></h2>
+    </div>
+
+    <div class="flashcard-options">
+      <% question['options'].each do |option| %>
+        <%= button_to answer_game_path(game_id: game_id), 
+              method: :post,
+              params: { question_id: question['id'], answer: option },
+              class: "btn-option",
+              form: { data: { turbo_submits_with: "Checking..." } } do %>
+          
+          <span class="option-text"><%= option %></span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="flashcard-footer">
+      <p>Answer correctly to cast your spell!</p>
+    </div>
+  </div>
+</div>

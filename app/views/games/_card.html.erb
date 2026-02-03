@@ -1,0 +1,36 @@
+<%# app/views/games/_card.html.erb %>
+<% 
+  # Determine card style based on type (assumes Python sends 'type': 'attack' or 'heal')
+  card_class = card['type'] == 'heal' ? 'card-heal' : 'card-attack'
+  
+  # Check if player has enough mana
+  can_afford = current_mana >= card['cost']
+%>
+
+<div class="game-card <%= card_class %> <%= 'disabled' unless can_afford %>">
+  <div class="card-header">
+    <span class="card-cost"><%= card['cost'] %> 💎</span>
+    <span class="card-name"><%= card['name'] %></span>
+  </div>
+
+  <div class="card-image">
+    <%= card['type'] == 'heal' ? '❤️' : '⚔️' %>
+  </div>
+
+  <div class="card-body">
+    <p><%= card['description'] %></p>
+  </div>
+
+  <div class="card-actions">
+    <% if can_afford %>
+      <%= button_to "Cast", 
+            cast_game_path(game_id: game_id), 
+            params: { card_id: card['id'] }, 
+            class: "btn-cast",
+            form: { data: { turbo_submits_with: "Casting..." } } 
+      %>
+    <% else %>
+      <button class="btn-disabled" disabled>Need Mana</button>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<%# app/views/games/_health_bar.html.erb %>
+<% percent = (current.to_f / max.to_f * 100).clamp(0, 100) %>
+<div class="health-bar-frame">
+  <div class="health-bar-fill <%= color %>" style="width: <%= percent %>%;"></div>
+  <span class="health-text"><%= current %> / <%= max %></span>
+</div>
