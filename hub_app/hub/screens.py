@@ -4,7 +4,7 @@ import pygame
 
 from .widgets import Button, InputBox, ListBox
 from .deck_store import DeckStore
-
+from .game_engine import GameEngine
 
 WIDTH, HEIGHT = 1000, 650
 

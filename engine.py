@@ -3,8 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uuid
 
-from cardgame_app.cardgame.engine import GameEngine  # or your engine_core
-
+from hub_app.hub.game_engine import GameEngine
 app = FastAPI()
 GAMES = {}  # game_id -> GameEngine instance
 

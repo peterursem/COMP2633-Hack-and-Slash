@@ -10,7 +10,7 @@
 import random
 
 from .deck_store import DeckStore
-from cardgame_app.cardgame.engine import GameEngine
+from .game_engine import GameEngine
 
 
 def normalize_answer(s):
