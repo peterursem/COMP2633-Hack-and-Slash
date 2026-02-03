@@ -30,13 +30,13 @@ class GameEngineService
   end
 
   # ── Cast a card ──
-  def self.cast_card(game_id:, player_id:, card_id:)
-    post('/game/cast', {
-      game_id:   game_id,
-      player_id: player_id,
-      card_id:   card_id
-    })
-  end
+  def self.cast_card(game_id:, player_id:, hand_index:)
+  post('/game/play', {
+    game_id:    game_id,
+    player_id:  player_id,
+    hand_index: hand_index
+  })
+end
 
   # ── Get current game state ──
   def self.game_state(game_id:)

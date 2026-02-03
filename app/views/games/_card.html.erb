@@ -29,7 +29,7 @@
     <% if can_afford %>
       <%= button_to "Cast", 
             cast_game_path(id: game_id), 
-            params: { card_id: card['id'] }, 
+            params: { hand_index: card['id'] },
             class: "btn-cast",
             form: { data: { turbo_submits_with: "..." } } 
       %>

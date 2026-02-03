@@ -39,22 +39,24 @@
     </div>
 
     <div class="hand-container">
-      <% state['hand'].each do |card_string| %>
-        <% 
-           # Parse "Ice Attack (12)" -> Name: Ice Attack, Cost: 12
-           # If no number found, default cost to 0
-           cost_match = card_string.match(/\((\d+)\)/)
-           cost = cost_match ? cost_match[1].to_i : 0
-           name = card_string.gsub(/\(\d+\)/, '').strip
-        %>
-        
-        <%= render "games/card", 
-              card: { 'id' => card_string, 'name' => name, 'cost' => cost, 'type' => 'unknown' },
-              current_mana: state['player_mana'], 
-              game_id: state['game_id'] 
-        %>
-      <% end %>
-    </div>
+  <%# CHANGE: use .each_with_index to get the integer position %>
+  <% state['hand'].each_with_index do |card_string, index| %>
+    
+    <% 
+       # Parse the string for display (Name & Cost)
+       cost_match = card_string.match(/\((\d+)\)/)
+       cost = cost_match ? cost_match[1].to_i : 0
+       name = card_string.gsub(/\(\d+\)/, '').strip
+    %>
+    
+    <%= render "games/card", 
+          # PASS THE INDEX AS THE ID
+          card: { 'id' => index, 'name' => name, 'cost' => cost },
+          current_mana: state['player_mana'], 
+          game_id: state['game_id'] 
+    %>
+  <% end %>
+</div>
   </div>
 
   <% if state['current_question'].present? && state['questions_left'].to_i > 0 %>

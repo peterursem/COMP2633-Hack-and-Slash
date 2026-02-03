@@ -70,9 +70,9 @@ end
     # POST /api/game/cast
     def cast
       new_state = GameEngineService.cast_card(
-        game_id:   params[:game_id],
+        game_id:   params[:id],
         player_id: current_user.id,
-        card_id:   params[:card_id]
+hand_index: params[:hand_index].to_i
       )
 
       respond_to do |format|
