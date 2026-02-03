@@ -70,6 +70,4 @@ end
 
 gem "devise", "~> 5.0"
 
-gem "jsbundling-rails"
-
 

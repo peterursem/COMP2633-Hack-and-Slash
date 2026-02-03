@@ -9,6 +9,19 @@ Rails.application.routes.draw do
   
   get "dashboard", to: "dashboard#index"
 
+  # ── NEW: Game API routes ──
+  namespace :api do
+    resources :game, only: [] do
+      collection do
+        post   :start
+        post   :answer
+        post   :cast
+        post   :end
+        get    :state
+      end
+    end
+  end
+
   resources :decks do
     resources :cards
   end

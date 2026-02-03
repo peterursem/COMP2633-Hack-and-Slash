@@ -8,6 +8,9 @@ class ApplicationController < ActionController::Base
   # Ensures CSRF protection for forms and requests
   protect_from_forgery with: :exception
 
+   # Skip CSRF for JSON API requests only (these are protected by authenticate_user! instead)
+  skip_before_action :verify_authenticity_token, if: :json_request?
+
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   protected
@@ -32,5 +35,11 @@ class ApplicationController < ActionController::Base
     root_path
   end
 
+  private
+
+  # Returns true if the request Content-Type is JSON
+  def json_request?
+    request.content_type&.include?('application/json')
+  end
 
 end
