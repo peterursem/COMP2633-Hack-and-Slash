@@ -5,8 +5,6 @@ import pygame
 from .widgets import Button, InputBox, ListBox
 from .deck_store import DeckStore
 
-from cardgame_app.cardgame.engine import GameEngine
-
 
 WIDTH, HEIGHT = 1000, 650
 
@@ -73,6 +71,7 @@ class MainMenuScreen(ScreenBase):
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
             if self.buttons[0].clicked(pos):
+                self.app.engine.start_card_game()     # <-- start session
                 self.next_screen = CardGameScreen(self.app)
             elif self.buttons[1].clicked(pos):
                 self.next_screen = ViewDecksScreen(self.app)
@@ -181,6 +180,7 @@ class ViewDecksScreen(ScreenBase):
                 if deck_id is None:
                     self.message = "Select a FLASH deck to study."
                 else:
+                    self.app.engine.start_flashcards(deck_id)  # <-- start session
                     self.next_screen = FlashcardsStudyScreen(self.app, deck_id)
 
     def draw(self, screen, font, big_font):
@@ -541,105 +541,72 @@ class FlashcardsStudyScreen(ScreenBase):
                 break
 
 
+import os
+import pygame
+
 class CardGameScreen(ScreenBase):
-    """
-    Runs the mana boss card game, but uses flashcard decks as the question source.
-    """
     def __init__(self, app):
         super().__init__(app)
 
-        self.engine = GameEngine()
-        self.phase = "questions"  # "questions", "play", "game_over"
-
-        # Load default flash deck for questions
-        deck_id = self.app.store.get_default_flash_deck_id()
-        cards = self.app.store.get_deck_cards(deck_id)
-        if len(cards) == 0:
-            # fallback to sample
-            cards = self.app.store.get_deck_cards("sample")
-
-        self.qcycler = FlashcardQuestionCycler(cards)
-
-        # 3 questions per turn
-        self.questions_left = 3
-        self.current_q, self.current_a = self.qcycler.next()
-
+        # session is created by: self.app.engine.start_card_game()
+        self.session = self.app.engine.session
         self.answer_box = InputBox(40, 270, 520, 50, "Type answer, press Enter")
         self.end_turn_btn = Button(820, 560, 140, 50, "End Turn")
         self.back_btn = Button(40, 560, 160, 50, "Main Menu")
 
         self.message = "Answer 3 flashcard questions to gain mana (+3 each correct)."
-        self.engine.start_new_turn()
 
-        # Boss sprite (optional)
+        # Boss sprite (robust path)
         self.boss_sprite = None
         try:
-            self.boss_sprite = pygame.image.load("boss.png").convert_alpha()
+            hub_dir = os.path.dirname(os.path.dirname(__file__))  # .../hub_app
+            img_path = os.path.join(hub_dir, "assets", "boss.png")
+            self.boss_sprite = pygame.image.load(img_path).convert_alpha()
+            self.boss_sprite = pygame.transform.smoothscale(self.boss_sprite, (260, 260))
         except:
             self.boss_sprite = None
 
     def handle_event(self, event):
-        if self.phase == "game_over":
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.back_btn.clicked(event.pos):
-                    self.next_screen = MainMenuScreen(self.app)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.back_btn.clicked(event.pos):
+                self.app.engine.go_to_menu()
+                self.next_screen = MainMenuScreen(self.app)
+                return
+
+        state = self.session.get_state()
+        phase = state["phase"]
+
+        if phase == "game_over":
+            if event.type == pygame.MOUSEBUTTONDOWN and self.back_btn.clicked(event.pos):
+                self.app.engine.go_to_menu()
+                self.next_screen = MainMenuScreen(self.app)
             return
 
-        if self.phase == "questions":
+        if phase == "questions":
             self.answer_box.handle_event(event)
-
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                user = normalize_answer(self.answer_box.text)
-                correct = normalize_answer(self.current_a)
-                if user == correct and self.current_a is not None:
-                    self.engine.grant_mana_for_correct_answer()
-                else:
-                    # keep it explicit for clarity
-                    self.engine._log("Wrong. +0 mana.")
-
-                self.questions_left -= 1
+                user_text = self.answer_box.text
+                ok, msg = self.session.submit_mana_answer(user_text)
+                self.message = msg
                 self.answer_box.text = ""
 
-                if self.questions_left <= 0:
-                    self.phase = "play"
-                    self.message = "Play cards (each costs 5 mana). Then End Turn."
-                else:
-                    self.current_q, self.current_a = self.qcycler.next()
-
-        elif self.phase == "play":
+        elif phase == "play":
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = event.pos
-
-                if self.back_btn.clicked(pos):
-                    self.next_screen = MainMenuScreen(self.app)
+                if self.end_turn_btn.clicked(event.pos):
+                    self.message = self.session.end_turn()
                     return
 
-                if self.end_turn_btn.clicked(pos):
-                    self.engine.end_player_turn_and_boss_acts()
-                    if self.engine.game_over:
-                        self.phase = "game_over"
-                        return
-
-                    # New turn begins
-                    self.engine.start_new_turn()
-                    self.questions_left = 3
-                    self.current_q, self.current_a = self.qcycler.next()
-                    self.phase = "questions"
-                    self.message = "Answer 3 flashcard questions to gain mana (+3 each correct)."
-                    return
-
-                idx = self._hand_index_at_pos(pos)
+                idx = self._hand_index_at_pos(event.pos)
                 if idx is not None:
-                    success, msg = self.engine.play_card_from_hand(idx)
+                    success, msg = self.session.play_card(idx)
                     self.message = msg
-                    if self.engine.game_over:
-                        self.phase = "game_over"
 
     def _hand_index_at_pos(self, pos):
         x0, y0 = 40, 430
         w, h = 180, 90
         gap = 12
-        for i in range(len(self.engine.player.hand)):
+        hand = self.session.engine.player.hand
+        for i in range(len(hand)):
             r = pygame.Rect(x0 + i * (w + gap), y0, w, h)
             if r.collidepoint(pos):
                 return i
@@ -648,76 +615,64 @@ class CardGameScreen(ScreenBase):
     def draw(self, screen, font, big_font):
         screen.fill((245, 245, 255))
 
-        # Title
+        e = self.session.engine
+        state = self.session.get_state()
+        phase = state["phase"]
+
         title = big_font.render("Mana Boss Card Game", True, (20, 20, 40))
         screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 15))
 
-        # HP bars
-        self._draw_hp_bar(screen, 40, 70, 420, 24, self.engine.player.hp, self.engine.player.max_hp, "Player", font)
-        self._draw_hp_bar(screen, 540, 70, 420, 24, self.engine.boss.hp, self.engine.boss.max_hp, "Boss", font)
+        self._draw_hp_bar(screen, 40, 70, 420, 24, e.player.hp, e.player.max_hp, "Player", font)
+        self._draw_hp_bar(screen, 540, 70, 420, 24, e.boss.hp, e.boss.max_hp, "Boss", font)
 
-        # Boss sprite (optional)
         if self.boss_sprite:
-            spr = pygame.transform.smoothscale(self.boss_sprite, (260, 260))
-            screen.blit(spr, (WIDTH // 2 - spr.get_width() // 2, 135))
+            screen.blit(self.boss_sprite, (WIDTH // 2 - self.boss_sprite.get_width() // 2, 135))
         else:
-            # fallback placeholder
             r = pygame.Rect(WIDTH // 2 - 120, 150, 240, 220)
             pygame.draw.rect(screen, (210, 210, 210), r, border_radius=14)
             pygame.draw.rect(screen, (30, 30, 30), r, 2, border_radius=14)
             t = font.render("boss sprite missing", True, (60, 60, 60))
             screen.blit(t, (r.centerx - t.get_width() // 2, r.centery - 10))
 
-        # Info
         info = font.render(
-            f"Turn: {self.engine.turn_number}   Mana: {self.engine.player.mana}   Boss resists: {self.engine.boss.resistant_to}",
+            f"Turn: {e.turn_number}   Mana: {e.player.mana}   Boss resists: {e.boss.resistant_to}",
             True, (30, 30, 30)
         )
         screen.blit(info, (40, 110))
 
-        shields = self.engine.player.shields
+        shields = e.player.shields
         shield_text = f"Shields: Fire[{shields['fire']}]  Water[{shields['water']}]  Ice[{shields['ice']}]"
         screen.blit(font.render(shield_text, True, (40, 40, 40)), (40, 140))
 
         if self.message:
             screen.blit(font.render(self.message, True, (120, 20, 20)), (40, 185))
 
-        # Phase UI
-        if self.phase == "questions":
+        if phase == "questions":
             screen.blit(big_font.render("Mana Questions (Flashcards)", True, (20, 20, 40)), (40, 215))
-            qline = f"({self.questions_left} left)  {self.current_q}"
+            qline = f"({state['questions_left']} left)  {state['current_question']}"
             screen.blit(font.render(qline, True, (20, 20, 20)), (40, 245))
             self.answer_box.draw(screen, font)
-            hint = font.render("Tip: answers are compared case-insensitively and with spaces normalized.", True, (90, 90, 90))
-            screen.blit(hint, (40, 330))
 
-        elif self.phase == "play":
+        elif phase == "play":
             screen.blit(big_font.render("Your Hand (click to play)", True, (20, 20, 40)), (40, 385))
             self._draw_hand(screen, font)
-
             mouse = pygame.mouse.get_pos()
             self.end_turn_btn.draw(screen, font, self.end_turn_btn.rect.collidepoint(mouse))
             self.back_btn.draw(screen, font, self.back_btn.rect.collidepoint(mouse))
 
-        # Log
         self._draw_log(screen, font)
 
-        # Game over overlay
-        if self.engine.game_over:
+        if e.game_over:
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 130))
             screen.blit(overlay, (0, 0))
-
-            winner = "YOU WIN!" if self.engine.winner == "player" else "YOU LOSE!"
+            winner = "YOU WIN!" if e.winner == "player" else "YOU LOSE!"
             msg = big_font.render(winner, True, (255, 255, 255))
             screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 40))
-
-            sub = font.render("Click Main Menu to return.", True, (255, 255, 255))
-            screen.blit(sub, (WIDTH // 2 - sub.get_width() // 2, HEIGHT // 2 + 10))
-
             mouse = pygame.mouse.get_pos()
             self.back_btn.draw(screen, font, self.back_btn.rect.collidepoint(mouse))
 
+    # keep your existing helper methods:
     def _draw_hp_bar(self, screen, x, y, w, h, current, max_hp, label, font):
         pygame.draw.rect(screen, (30, 30, 30), (x, y, w, h), 2, border_radius=8)
         fill_w = int(w * (current / max_hp)) if max_hp > 0 else 0
@@ -729,31 +684,21 @@ class CardGameScreen(ScreenBase):
         x0, y0 = 40, 430
         w, h = 180, 90
         gap = 12
+        hand = self.session.engine.player.hand
 
-        for i, card in enumerate(self.engine.player.hand):
+        for i, card in enumerate(hand):
             r = pygame.Rect(x0 + i * (w + gap), y0, w, h)
             pygame.draw.rect(screen, (255, 255, 255), r, border_radius=10)
             pygame.draw.rect(screen, (30, 30, 30), r, 2, border_radius=10)
-
-            line1 = font.render(card.to_short_text(), True, (20, 20, 20))
-            screen.blit(line1, (r.x + 10, r.y + 10))
-
-            line2 = font.render(f"Cost: {card.cost}", True, (80, 80, 80))
-            screen.blit(line2, (r.x + 10, r.y + 38))
-
-            line3 = font.render(card.card_type, True, (80, 80, 80))
-            screen.blit(line3, (r.x + 10, r.y + 62))
-
-        if len(self.engine.player.hand) == 0:
-            screen.blit(font.render("(Empty hand)", True, (80, 80, 80)), (40, 455))
+            screen.blit(font.render(card.to_short_text(), True, (20, 20, 20)), (r.x + 10, r.y + 10))
+            screen.blit(font.render(f"Cost: {card.cost}", True, (80, 80, 80)), (r.x + 10, r.y + 38))
+            screen.blit(font.render(card.card_type, True, (80, 80, 80)), (r.x + 10, r.y + 62))
 
     def _draw_log(self, screen, font):
         box = pygame.Rect(40, 535, 740, 90)
         pygame.draw.rect(screen, (255, 255, 255), box, border_radius=10)
         pygame.draw.rect(screen, (30, 30, 30), box, 2, border_radius=10)
-
         y = box.y + 8
-        for line in self.engine.log_lines[-4:]:
-            img = font.render(line, True, (25, 25, 25))
-            screen.blit(img, (box.x + 10, y))
+        for line in self.session.engine.log_lines[-4:]:
+            screen.blit(font.render(line, True, (25, 25, 25)), (box.x + 10, y))
             y += 20

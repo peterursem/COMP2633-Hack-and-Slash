@@ -3,6 +3,7 @@ import pygame
 
 from .hub.deck_store import DeckStore
 from .hub.screens import WIDTH, HEIGHT, MainMenuScreen
+from cardgame_app.cardgame.engine import GameEngine
 
 
 class HubApp:

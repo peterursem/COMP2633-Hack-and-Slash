@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from .flash_enginelogic import start_quiz, apply_answer
+from flash_enginelogic import start_quiz, apply_answer
 
 HOST = "127.0.0.1"
 PORT = 5055
