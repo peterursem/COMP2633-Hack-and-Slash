@@ -1,4 +1,3 @@
-<%# app/views/games/_flashcard_modal.html.erb %>
 <div class="modal-overlay">
   <div class="flashcard-container animate-pop-in">
     
@@ -11,21 +10,30 @@
       <h2 class="question-text"><%= question['text'] %></h2>
     </div>
 
-    <div class="flashcard-options">
-      <% question['options'].each do |option| %>
-        <%= button_to answer_game_path(game_id: game_id), 
-              method: :post,
-              params: { question_id: question['id'], answer: option },
-              class: "btn-option",
-              form: { data: { turbo_submits_with: "Checking..." } } do %>
+    <div class="flashcard-form-container">
+      <%= form_with url: answer_game_path(id: game_id), method: :post do |f| %>
+        
+        <%= hidden_field_tag :question_id, question['id'] %>
+
+        <div class="input-group">
+          <%= text_field_tag :answer, nil, 
+                placeholder: "Type your answer...", 
+                class: "flashcard-input", 
+                autofocus: true, 
+                autocomplete: "off" 
+          %>
           
-          <span class="option-text"><%= option %></span>
-        <% end %>
+          <%= f.submit "Submit!", 
+                class: "btn-submit", 
+                data: { turbo_submits_with: "Casting..." } 
+          %>
+        </div>
+
       <% end %>
     </div>
 
     <div class="flashcard-footer">
-      <p>Answer correctly to cast your spell!</p>
+      <p>Type the answer correctly to gain mana!</p>
     </div>
   </div>
 </div>

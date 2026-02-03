@@ -42,30 +42,56 @@
   color: #666;
 }
 
-/* Answer Grid */
-.flashcard-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 columns */
-  gap: 1rem;
-  margin-top: 1.5rem;
+/* Container for the form */
+.flashcard-form-container {
+  margin: 20px 0;
 }
 
-/* Option Buttons */
-.btn-option {
-  width: 100%;
-  padding: 1rem;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+/* The layout of Input + Button */
+.input-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* The Text Field */
+.flashcard-input {
+  padding: 12px 16px;
+  font-size: 1.2rem;
+  border: 2px solid #ddd;
   border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  width: 60%;
+  outline: none;
+  transition: border-color 0.2s;
+
+  color: #4a90e2;
 }
 
-.btn-option:hover {
-  background: #e7f1ff;
-  border-color: #4a90e2;
+.flashcard-input:focus {
+  border-color: #4a90e2; /* Blue focus ring */
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+/* The Submit Button */
+.btn-submit {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background: #2ecc71; /* Green */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+}
+
+.btn-submit:hover {
+  background: #27ae60;
   transform: translateY(-2px);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
 }
 
 
