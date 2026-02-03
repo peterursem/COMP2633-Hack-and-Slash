@@ -92,6 +92,20 @@ hand_index: params[:hand_index].to_i
       render json: result
     end
 
+    def end_turn
+    # 1. Call Python
+    new_state = GameEngineService.end_turn(game_id: params[:id])
+
+    # 2. Refresh the board
+    render turbo_stream: turbo_stream.update(
+      "game_board", 
+      partial: "games/board", 
+      locals: { state: new_state }
+    )
+    rescue GameEngineError => e
+      render turbo_stream: turbo_stream.update("flash", html: e.message)
+    end
+
     # POST /api/game/end
     def end_game
       result = GameEngineService.end_game(

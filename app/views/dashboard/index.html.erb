@@ -1,4 +1,29 @@
-<div>
-  <h1 class="font-bold text-4xl">Dashboard#index</h1>
-  <p>Find me in app/views/dashboard/index.html.erb</p>
+<%# app/views/home/index.html.erb %>
+<div class="lobby-container">
+  <h1>Welcome to Battle Cards</h1>
+
+  <%# Display Flash errors if the Python engine fails %>
+  <% if flash[:alert] %>
+    <div class="error-banner"><%= flash[:alert] %></div>
+  <% end %>
+
+  <div class="game-setup">
+    <h3>Start a New Game</h3>
+    
+    <%= form_with url: games_path, method: :post, data: { turbo: false } do |f| %>
+      
+      <div class="form-group">
+        <%= f.label :mode, "Select Mode" %>
+        <%= f.select :mode, options_for_select([['Practice (PvE)', 'pve'], ['Multiplayer (PvP)', 'pvp']]) %>
+      </div>
+
+      <%# Optional: If you want to challenge a specific user %>
+      <div class="form-group">
+        <%= f.label :opponent_id, "Opponent ID (Optional)" %>
+        <%= f.text_field :opponent_id, placeholder: "e.g. 42" %>
+      </div>
+
+      <%= f.submit "Start Game", class: "btn-start" %>
+    <% end %>
+  </div>
 </div>

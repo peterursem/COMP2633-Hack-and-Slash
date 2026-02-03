@@ -1,13 +1,22 @@
-<div class="game-container">
-  <h1>Battle Arena</h1>
+<div id="game_container" data-controller="game">
+  
+  <div id="stats_panel">
+    <h3>HP: <%= @game_state['player_hp'] %></h3>
+  </div>
 
-  <%= turbo_frame_tag "game_board", data: { controller: (params[:no_poll] ? "" : "poller") } do %>
-    
-    <% if @game_state %>
-      <%= render "games/board", state: @game_state %>
-    <% else %>
-      <div class="error">No Game State Found</div>
+  <div id="game_board">
+    <%= render "games/board", state: @game_state %>
+  </div>
+
+  <div id="player_hand">
+    <% @game_state['hand'].each do |card| %>
+      <button 
+        data-action="click->game#cast" 
+        data-game-card-id="<%= card['id'] %>"
+        class="card-style">
+        <%= card['name'] %>
+      </button>
     <% end %>
+  </div>
 
-  <% end %>
 </div>

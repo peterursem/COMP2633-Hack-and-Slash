@@ -28,6 +28,12 @@
               max: state['player_max_hp'], 
               color: 'green' 
         %>
+        <%= button_to "End Turn ⏳", 
+            end_turn_game_path(id: state['game_id']), 
+            method: :post, 
+            class: "btn-end-turn",
+            form: { data: { turbo_submits_with: "Ending..." } } 
+      %>
       </div>
 
       <div class="stat-group">
@@ -42,16 +48,9 @@
   <%# CHANGE: use .each_with_index to get the integer position %>
   <% state['hand'].each_with_index do |card_string, index| %>
     
-    <% 
-       # Parse the string for display (Name & Cost)
-       cost_match = card_string.match(/\((\d+)\)/)
-       cost = cost_match ? cost_match[1].to_i : 0
-       name = card_string.gsub(/\(\d+\)/, '').strip
-    %>
-    
     <%= render "games/card", 
           # PASS THE INDEX AS THE ID
-          card: { 'id' => index, 'name' => name, 'cost' => cost },
+          card: { 'id' => index, 'name' => card_string, 'cost' => 5 },
           current_mana: state['player_mana'], 
           game_id: state['game_id'] 
     %>

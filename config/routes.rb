@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       post :join
       post :cast
       post :answer
+      post :end_turn
     end
   end
 

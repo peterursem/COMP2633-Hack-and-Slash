@@ -43,6 +43,13 @@ end
     get("/game/state/#{game_id}")
   end
 
+  # ── End the current turn ──
+  def self.end_turn(game_id:)
+    post('/game/endturn', {
+      game_id: game_id
+    })
+  end
+
   # ── End / forfeit a game ──
   def self.end_game(game_id:, player_id:, reason:)
     post('/game/end', {
