@@ -1,37 +1,41 @@
-<div class="modal-overlay">
-  <div class="flashcard-container animate-pop-in">
+<div class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center" style="z-index: 2000; backdrop-filter: blur(2px);">
+  
+  <div class="card rounded-0 border-4 border-dark shadow-lg animate-pop-in" style="width: 90%; max-width: 500px; background-color: #f0f0f0;">
     
-    <div class="flashcard-header">
-      <span class="badge-category">Mana Challenge</span>
-      <span class="timer-icon">⏱️</span>
+    <div class="card-header bg-primary text-white rounded-0 border-dark border-4 border-top-0 border-start-0 border-end-0 border-bottom-4 d-flex justify-content-between align-items-center p-3">
+      <span class="badge bg-dark rounded-0 border border-white text-uppercase" style="letter-spacing: 1px;">
+        Mana Challenge
+      </span>
     </div>
 
-    <div class="flashcard-body">
-      <h2 class="question-text"><%= question_text %></h2>
-    </div>
+    <div class="card-body p-4 text-center">
+      
+      <h2 class="h3 fw-bold font-monospace mb-4 text-uppercase" style="color: #333; line-height: 1.4;">
+        <%= question_text %>
+      </h2>
 
-    <div class="flashcard-form-container">
-      <%= form_with url: answer_game_path(id: game_id), method: :post do |f| %>
-        
-        <div class="input-group">
-          <%= text_field_tag :answer, nil, 
-                placeholder: "Type your answer...", 
-                class: "flashcard-input", 
-                autofocus: true, 
-                autocomplete: "off" 
-          %>
+      <div class="mb-3">
+        <%= form_with url: answer_game_path(id: game_id), method: :post do |f| %>
           
-          <%= f.submit "Submit Answer", 
-                class: "btn-submit",
-                data: { turbo_submits_with: "Checking..." } 
-          %>
-        </div>
+          <div class="input-group input-group-lg border border-3 border-dark p-1 bg-white">
+            
+            <%= text_field_tag :answer, nil, 
+                  placeholder: "TYPE ANSWER...", 
+                  class: "form-control rounded-0 border-0 shadow-none font-monospace text-primary", 
+                  autofocus: true, 
+                  autocomplete: "off",
+                  style: "background: transparent;" 
+            %>
+            
+            <%= f.submit "SUBMIT", 
+                  class: "btn btn-success rounded-0 fw-bold border-start border-3 border-dark text-uppercase px-4",
+                  data: { turbo_submits_with: "..." } 
+            %>
+          </div>
 
-      <% end %>
-    </div>
+        <% end %>
+      </div>
 
-    <div class="flashcard-footer">
-      <p>Answer correctly to gain Mana!</p>
     </div>
   </div>
 </div>

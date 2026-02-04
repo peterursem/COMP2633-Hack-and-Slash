@@ -1,22 +1,5 @@
 <div id="game_container" data-controller="game">
-  
-  <div id="stats_panel">
-    <h3>HP: <%= @game_state['player_hp'] %></h3>
-  </div>
-
   <div id="game_board">
     <%= render "games/board", state: @game_state %>
   </div>
-
-  <div id="player_hand">
-    <% @game_state['hand'].each do |card| %>
-      <button 
-        data-action="click->game#cast" 
-        data-game-card-id="<%= card['id'] %>"
-        class="card-style">
-        <%= card['name'] %>
-      </button>
-    <% end %>
-  </div>
-
 </div>
