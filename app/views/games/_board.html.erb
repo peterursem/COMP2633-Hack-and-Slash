@@ -42,7 +42,7 @@
     <%= image_tag "ash.png", class: "rounded-circle border border-primary bg-light me-3 h-100" %>
   </div>
 
-  <div class="hand-container d-flex gap-3 w-100 mb-3" style="height: 40vh">
+  <div class="hand-container d-flex flex-column flex-md-row gap-3 w-100 mb-3">
     <% state['hand'].each_with_index do |card_string, index| %>
     <%= render "games/card", 
       card: { 'id' => index, 'name' => card_string, 'cost' => 5 },

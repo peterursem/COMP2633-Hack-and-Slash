@@ -4,13 +4,13 @@ body {
   font-family: 'Press Start 2P', cursive;
 }
 
-.responsive-hand {
+.hand-container {
   height: auto;
   overflow-y: visible;
 }
 
 @media (min-width: 768px) {
-  .responsive-hand {
+  .hand-container {
     height: 40vh;
     overflow-x: auto; 
   }
