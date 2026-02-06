@@ -1,24 +1,29 @@
-# README
+# Hack And Flash
+A game made for our first COMP2633 hackathon.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Install
 
-Things you may want to cover:
+## Server
 
-* Ruby version
+Ensure you have **Python 3** installed and updated
+Install **FastAPI** and **Uvicorn** using `pip`
 
-* System dependencies
+## Client
 
-* Configuration
+Install **Rails 8** and **Postgres**
+Start a postgres server locally
+From the client directory, run:
+`bundle install
+rails db:create
+rails db:migrate
+rails s`
 
-* Database creation
+## Running the game
 
-* Database initialization
+### Server
+From the server directory, run
+`uvicorn engine:app --host 127.0.0.1 --port 8000`
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### Client
+From the client directory, run
+`rails s`
