@@ -1,0 +1,74 @@
+<div class="battlefield">
+  
+  <div class="opponent d-flex align-items-center justify-content-center mb-3 w-100 gap-5" style="height: 100px;">
+    
+    <%= image_tag "kidney.png", class: "rounded-circle border border-primary bg-light me-3 h-100" %>
+
+    <div class="stats bg-secondary p-2 rounded-0-force border border-dark w-100">
+      <h3 class="h6 fw-bold text-white mb-1">
+        Boss (<%= state['boss_resists']%> type)
+      </h3>
+      
+      <%= render "games/health_bar", 
+            current: state['boss_hp'], 
+            max: state['boss_max_hp']
+      %>
+    </div>
+
+  </div>
+
+  <div class="log mb-3">
+    <% state['log'].last(3).each do |entry| %>
+      <div class="action-log"><%= entry %></div>
+    <% end %>
+  </div>
+
+  <div class="player d-flex align-items-center justify-content-center mb-3 w-100 gap-5" style="height: 100px;">
+    <div class="player-stats d-flex flex-column align-items-center bg-secondary p-1 rounded-0-force w-100">
+      
+      <div class="stat-group w-100">
+        <%= render "games/health_bar", current: state['player_hp'], max: state['player_max_hp'] %>
+      </div>
+
+      <div class="stat-group">
+        <span><%= state['player_mana'] %> Mana</span>
+        <div class="mana-bar-container">
+          <div class="mana-fill" style="width: <%= (state['player_mana'].to_f / 10.0 * 100).clamp(0,100) %>%"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <%= image_tag "ash.png", class: "rounded-circle border border-primary bg-light me-3 h-100" %>
+  </div>
+
+  <div class="hand-container d-flex flex-column flex-md-row gap-3 w-100 mb-3">
+    <% state['hand'].each_with_index do |card_string, index| %>
+    <%= render "games/card", 
+      card: { 'id' => index, 'name' => card_string, 'cost' => 5 },
+      current_mana: state['player_mana'], 
+      game_id: state['game_id'] 
+    %>
+    <% end %>
+  </div>
+
+  <%= button_to "End Turn ⏳", 
+        end_turn_game_path(id: state['game_id']), 
+        method: :post, 
+        class: "btn-end-turn btn btn-success",
+        form: { data: { turbo_submits_with: "Ending..." } },
+        :form_class => "d-flex justify-content-center" 
+      %>
+  
+  <% if state['current_question'].present? && state['questions_left'].to_i > 0 %>
+    <%= render "games/flashcard_modal", 
+          question_text: state['current_question'], 
+          game_id: state['game_id'] 
+    %>
+  <% end %>
+
+  <% if state['game_over'] == true %>
+    <%= render "games/game_over_modal", winner: state['winner'] %>
+  <% end %>
+
+</div>

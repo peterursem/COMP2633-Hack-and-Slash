@@ -1,0 +1,14 @@
+<%# app/views/home/index.html.erb %>
+<div class="lobby-container d-flex flex-column align-items-center gap-5">
+  <h1 class="text-center">Hack and Flash</h1>
+  <h3 class="text-center">Making studying fun and relaxing.</h3>
+
+  <%# Display Flash errors if the Python engine fails %>
+  <% if flash[:alert] %>
+    <div class="error-banner"><%= flash[:alert] %></div>
+  <% end %>
+
+    <%= form_with url: games_path, method: :post, data: { turbo: false } do |f| %>
+      <%= f.submit "Start Game", class: "btn btn-start btn-outline-success" %>
+    <% end %>
+</div>

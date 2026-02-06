@@ -1,0 +1,64 @@
+<%# app/views/games/_card.html.erb %>
+<% 
+   # 1. Determine Type & Theme Color
+   # Attack = Red (Danger), Block = Blue (Primary), Others = Gray (Secondary)
+   is_attack = card['name'].downcase.include?("attack")
+   is_block = card['name'].downcase.include?("block")
+
+   theme = if is_attack
+             "danger"
+           elsif is_block
+             "primary"
+           else
+             "secondary"
+           end
+
+   can_afford = current_mana >= card['cost']
+%>
+
+<div class="card h-100 col border-<%= theme %> border-3 rounded-3 shadow-sm <%= 'opacity-50' unless can_afford %>" style="max-height: 100%">
+  
+  <div class="card-header bg-<%= theme %> text-white d-flex justify-content-between align-items-center p-1 border-0">
+    <span class="fw-bold text-uppercase text-wrap" style="font-size: clamp(0.5rem, 1vw, 0.75rem);">
+      <%= card['name'] %>
+    </span>
+    <span class="badge bg-dark rounded-pill text-wrap" style="font-size: clamp(0.3rem, 0.75vw, 0.5rem);">
+      <%= card['cost'] %> MANA
+    </span>
+  </div>
+
+  <div class="card-body bg-light p-2 d-flex flex-column h-100" style="min-width: 0" >
+    
+    <div class="ratio ratio-1x1 bg-white border border-2 border-<%= theme %> mb-2 shadow-sm" style="max-height: 20vh">
+      <div class="d-flex align-items-center justify-content-center display-4">
+        <%= is_attack ? '⚔️' : (is_block ? '🛡️' : '✨') %>
+      </div>
+    </div>
+
+    <div class="bg-<%= theme %> bg-opacity-50 w-100 text-center text-uppercase fw-bold text-<%= theme %> mb-1 rounded-1" style="font-size: 0.75rem">
+      <%= is_attack ? "Attack" : (is_block ? 'Defense' : 'Special') %>
+    </div>
+
+    <div class="border border-secondary bg-white p-1 flex-grow-1">
+      <p class="mb-0 text-<%= theme %>" style="font-size: 0.5rem">
+        <%= is_attack ? card['name'] : (is_block ? card['name'] : "A special action") %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card-footer p-1 bg-transparent border-0">
+    <% if can_afford %>
+      <%= button_to "USE MOVE", 
+            cast_game_path(id: game_id), 
+            params: { hand_index: card['id'] },
+            class: "btn btn-outline-#{theme} w-100 btn-sm fw-bold border-2",
+            form: { data: { turbo_submits_with: "..." } } 
+      %>
+    <% else %>
+      <button class="btn btn-secondary w-100 btn-sm fw-bold" disabled>
+        NO MANA
+      </button>
+    <% end %>
+  </div>
+
+</div>

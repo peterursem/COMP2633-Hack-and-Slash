@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  font-family: 'Press Start 2P', cursive;
+}
+
+.hand-container {
+  height: auto;
+  overflow-y: visible;
+}
+
+@media (min-width: 768px) {
+  .hand-container {
+    height: 40vh;
+    overflow-x: auto; 
+  }
+}

@@ -1,0 +1,30 @@
+
+<% 
+   percent = (current.to_f / max.to_f * 100).clamp(0, 100)
+   
+   bar_color = if percent > 50 
+                 'bg-success' # Green
+               elsif percent > 20 
+                 'bg-warning' # Yellow
+               else 
+                 'bg-danger'  # Red
+               end
+%>
+
+<div class="mb-2 w-100">
+  <div class="d-flex align-items-center bg-dark p-1 rounded-1 border border-3 border-dark">
+    <div class="me-2 fw-bold text-warning fst-italic" style="font-size: 10px; text-shadow: 1px 1px 0 #d35400;">
+      HP
+    </div>
+
+    <div class="progress flex-grow-1 rounded-0 bg-secondary" style="height: 14px; border: 1px solid #fff;">
+      <div class="progress-bar <%= bar_color %>" style="width: <%= percent %>%; transition: width 0.5s ease; border-right: 1px solid rgba(0,0,0,0.5);">
+      </div>
+    </div>
+
+  </div>
+
+  <div class="text-end fw-bold mt-1">
+    <%= current %> / <%= max %> HP
+  </div>
+</div>
