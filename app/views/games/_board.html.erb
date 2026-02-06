@@ -67,4 +67,8 @@
     %>
   <% end %>
 
+  <% if state['game_over'] == true %>
+    <%= render "games/game_over_modal", winner: state['winner'] %>
+  <% end %>
+
 </div>
