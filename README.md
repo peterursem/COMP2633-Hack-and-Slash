@@ -6,12 +6,12 @@ A game made for our first COMP2633 hackathon.
 
 ## Install
 
-## Server
+### Server
 
 Ensure you have **Python 3** installed and updated
 Install **FastAPI** and **Uvicorn** using `pip`
 
-## Client
+### Client
 
 Install **Rails 8** and **Postgres**
 Start a postgres server locally
