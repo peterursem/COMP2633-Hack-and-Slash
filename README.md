@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> The branches were combined after the deadline of the hackathon. All code is unaffected and is in seperate folders regardless. A true timeline of our work is avaliable in the branches "frontend" and "bryanFork"
+> A true timeline of our work is avaliable in the branches "newFrontend" and "BryanFork". The branches were combined after the deadline of the hackathon so modification dates were reset. All code is unaffected and is in seperate folders regardless. 
 
 # Hack And Flash
 A game made for our first COMP2633 hackathon.
